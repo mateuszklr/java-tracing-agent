@@ -1,33 +1,21 @@
 package dakaraphi.devtools.tracing.config;
 
-import java.io.File;
-import java.io.IOException;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigBeanFactory;
+import com.typesafe.config.ConfigFactory;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
 
 public class ConfigurationSerializer {
-	public static final String FILE_PROPERTY_KEY = "dakaraphi.devtools.tracing.config.file";
-	private final File configFile;
-	private TracingConfig tracingConfig;
+    public static final String FILE_PROPERTY_KEY = "dakaraphi.devtools.tracing.config.file";
+    private final File configFile;
 
-	public ConfigurationSerializer(File configFile) {
-		this.configFile = configFile;
-	}
-	
-	public TracingConfig readConfig() {
-		try {
-			JsonFactory jsonFactory = new JsonFactory();
-			jsonFactory.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
-			ObjectMapper mapper = new ObjectMapper(jsonFactory);
-			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-			tracingConfig = mapper.readValue(configFile, TracingConfig.class);
+    public ConfigurationSerializer(File configFile) {
+        this.configFile = configFile;
+    }
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return tracingConfig;
-	}
+    public TracingConfig readConfig() {
+        final Config config = ConfigFactory.parseFile(configFile);
+        return ConfigBeanFactory.create(config, TracingConfig.class);
+    }
 }

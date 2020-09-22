@@ -34,7 +34,7 @@ public class ApplicationHooks {
 
 		writeLog(tracerConfig, builder.toString());
 	}
-	
+
 	public static void writeLog(Tracer tracerConfig, String text) {
 		LogConfig logConfig = TracingAgent.tracingConfig.logConfig;
 		StringBuilder builder = new StringBuilder();
@@ -47,7 +47,7 @@ public class ApplicationHooks {
 			if (logConfig.threadName) builder.append(Thread.currentThread().getName());
 			builder.append("]:");
 		}
-		builder.append(' ');	
+		builder.append(' ');
 		builder.append(text);
 
 		if (tracerConfig.logStackFrames != null) appendStackFrames(tracerConfig.logStackFrames, builder);
@@ -63,10 +63,11 @@ public class ApplicationHooks {
 			stackDepth++;
 			String stackFrameDescription = formatStackFrame(stackFrame);
 			if (stackFrameDescription.contains("dakaraphi.devtools.tracing")) continue; // skip our own tracing frames
-			if (logStackFramesConfig.includeRegex != null && !logStackFramesConfig.includeRegex.matcher(stackFrameDescription).matches()) continue;
-			if (logStackFramesConfig.excludeRegex != null &&  logStackFramesConfig.excludeRegex.matcher(stackFrameDescription).matches()) continue;
+			if (logStackFramesConfig.getIncludeRegexPattern() != null && !logStackFramesConfig.getIncludeRegexPattern().matcher(stackFrameDescription).matches()) continue;
+			if (logStackFramesConfig.getExcludeRegexPattern() != null &&  logStackFramesConfig.getExcludeRegexPattern().matcher(stackFrameDescription).matches()) continue;
 			if (logStackFramesConfig.limit > 0 && framesLogged >= logStackFramesConfig.limit) break;
 			framesLogged++;
+			content.append('\n');
 			content.append(" stack frame["+ stackDepth + "] " + stackFrameDescription);
 			content.append('\n');
 		}
@@ -83,23 +84,23 @@ public class ApplicationHooks {
 			// check variable conditions
 			for (VariableCondition variable : tracerConfig.logWhen.variableValues) {
 				Object parameterValue = parameters[variable.index];
-				if (parameterValue == null || !variable.valueRegex.matcher(parameterValue.toString()).matches()) {
+				if (parameterValue == null || !variable.getValueRegexPattern().matcher(parameterValue.toString()).matches()) {
 					return false;
 				}
 			}
 
 			// check thread condition
-			if (tracerConfig.logWhen.threadNameRegex != null && !tracerConfig.logWhen.threadNameRegex.matcher(Thread.currentThread().getName()).matches()) {
+			if (tracerConfig.logWhen.getThreadNameRegexPattern() != null && !tracerConfig.logWhen.getThreadNameRegexPattern().matcher(Thread.currentThread().getName()).matches()) {
 				return false;
 			}
 
 			// check stack frame condition
-			if (tracerConfig.logWhen.stackFramesRegex != null) {
+			if (tracerConfig.logWhen.getStackFramesRegexPattern() != null) {
 				Throwable throwable = new Throwable();
 				boolean foundInStackFrames = false;
 				for (StackTraceElement stackFrame : throwable.getStackTrace()) {
 					String frameDescription = formatStackFrame(stackFrame);
-					if (tracerConfig.logWhen.stackFramesRegex.matcher(frameDescription).matches()) {
+					if (tracerConfig.logWhen.getStackFramesRegexPattern().matcher(frameDescription).matches()) {
 						foundInStackFrames = true;
 						break;
 					}

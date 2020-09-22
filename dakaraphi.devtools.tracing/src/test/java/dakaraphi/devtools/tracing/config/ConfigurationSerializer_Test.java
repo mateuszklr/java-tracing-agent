@@ -2,14 +2,17 @@ package dakaraphi.devtools.tracing.config;
 
 import org.junit.Test;
 
-import dakaraphi.devtools.tracing.ClassMethodSelector;
+import java.io.File;
+import java.net.URISyntaxException;
 
 public class ConfigurationSerializer_Test {
 
-	@Test
-	public void canReadJsonFile() {
-		System.setProperty(ConfigurationSerializer.FILE_PROPERTY_KEY, System.getProperty("user.dir") + "/config.json");
-		ConfigurationSerializer serializer = new ConfigurationSerializer();
-		serializer.map(new ClassMethodSelector());
-	}
+    @Test
+    public void canReadConfigFile() throws URISyntaxException {
+        var resource = this.getClass().getResource("/testconfig.conf");
+        var file = new File(resource.toURI());
+        var tracingConfig = new ConfigurationSerializer(file).readConfig();
+
+        assert tracingConfig.tracers.get(0).logStackFrames.getIncludeRegexPattern().pattern().equals("package.*");
+    }
 }

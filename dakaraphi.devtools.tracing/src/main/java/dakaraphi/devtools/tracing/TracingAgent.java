@@ -50,6 +50,7 @@ public class TracingAgent {
 		ClassMethodSelector selector = loadConfig(configFile);
 
 		final TracingTransformer transformer = new TracingTransformer(instrumentation, selector, new MethodRewriter());
+		transformer.retransform();
 
 		FileWatcher.createFileWatcher().addListener(() -> {
 			ClassMethodSelector selector1 = loadConfig(configFile);

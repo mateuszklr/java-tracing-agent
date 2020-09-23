@@ -59,6 +59,7 @@ public class ApplicationHooks {
 		StackTraceElement[] stackFrames = new Throwable().getStackTrace();
 		int stackDepth = 0;
 		int framesLogged = 0;
+		content.append('\n');
 		for (StackTraceElement stackFrame : stackFrames) {
 			stackDepth++;
 			String stackFrameDescription = formatStackFrame(stackFrame);
@@ -67,7 +68,6 @@ public class ApplicationHooks {
 			if (logStackFramesConfig.getExcludeRegexPattern() != null &&  logStackFramesConfig.getExcludeRegexPattern().matcher(stackFrameDescription).matches()) continue;
 			if (logStackFramesConfig.limit > 0 && framesLogged >= logStackFramesConfig.limit) break;
 			framesLogged++;
-			content.append('\n');
 			content.append(" stack frame["+ stackDepth + "] " + stackFrameDescription);
 			content.append('\n');
 		}
